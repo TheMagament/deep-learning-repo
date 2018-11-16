@@ -29,6 +29,7 @@ evaluation_mode = 0
 # Things for running on GPU
 USE_CUDA = torch.cuda.is_available()
 dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+dtype2 = torch.cuda.LongTensor if torch.cuda.is_available() else torch.LongTensor
 class Variable(autograd.Variable):
     def __init__(self, data, *args, **kwargs):
         if USE_CUDA:
@@ -148,14 +149,13 @@ else:
     for epoch in range(num_epochs):
         for i, (images, labels) in enumerate(train_loader):
             # Convert torch tensor to Variable
-            images = Variable(images)
+
+            images = Variable(images.type(dtype))
 
             # Forward + Backward + Optimize
             optimizer.zero_grad()
-            print(images.data.is_cuda)
             outputs = my_net(images)
-            print('hi12')
-            loss = criterion(outputs, Variable(labels))
+            loss = criterion(outputs, Variable(labels.type(dtype2)))
             loss.backward()
             optimizer.step()
 
@@ -174,7 +174,7 @@ my_net.eval()
 correct = 0
 total = 0
 for images, labels in test_loader:
-    images = Variable(images)
+    images = Variable(images.type(dtype))
     outputs = my_net(images)
     a, winner_class = torch.max(outputs,-1)
 
