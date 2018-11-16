@@ -1,0 +1,10 @@
+/HW1/.idea/HW1.iml
+/HW1/.idea/misc.xml
+/HW1/.idea/workspace.xml
+/HW1/__pycache__/dqn_model.cpython-36.pyc
+/HW1/data/processed/test.pt
+/HW1/data/processed/training.pt
+/HW1/data/raw/t10k-images-idx3-ubyte
+/HW1/data/raw/t10k-labels-idx1-ubyte
+/HW1/data/raw/train-images-idx3-ubyte
+/HW1/data/raw/train-labels-idx1-ubyte
