@@ -21,8 +21,8 @@ use_WeightDecay = 0
 use_BatchNorm = 0
 use_Dropout = 0
 dropout_prob = 0.2
-learning_rate = 1e-3
-num_epochs = 10
+learning_rate = 0.5e-4
+num_epochs = 5
 evaluation_mode = 0
 
 # ----------------------------------------------------------------------------------
