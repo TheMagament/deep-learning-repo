@@ -161,7 +161,7 @@ else:
 
             a, winner_class = torch.max(outputs, -1)
 
-            correct = sum(winner_class.data.numpy() == labels)
+            correct = sum(winner_class.data.numpy().cpu() == labels)
             total = labels.size(0)
 
             if (i % (1000/batch_size) == 0):
