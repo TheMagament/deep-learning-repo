@@ -128,7 +128,7 @@ class NN_basic(nn.Module):
 
 my_net = NN_basic(num_classes, use_BatchNorm, use_Dropout, dropout_prob)
 if (USE_CUDA):
-    my_net.cuda()
+    my_net = my_net.cuda()
 
 optimizer = optimizer_type(my_net.parameters(), **optimizer_params)
 
@@ -177,8 +177,8 @@ for images, labels in test_loader:
     outputs = my_net(images)
     a, winner_class = torch.max(outputs,0)
 
-    correct += sum(winner_class.data.numpy() == labels)
-    total += labels.size(0)
+    correct = correct + sum(winner_class.data.numpy() == labels)
+    total = total + labels.size(0)
 
 print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
 
