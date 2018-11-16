@@ -152,7 +152,7 @@ else:
 
             # Forward + Backward + Optimize
             optimizer.zero_grad()
-            print('hi1')
+            print(images.data.is_cuda)
             outputs = my_net(images)
             print('hi12')
             loss = criterion(outputs, Variable(labels))
