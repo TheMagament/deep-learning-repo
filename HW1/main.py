@@ -110,7 +110,6 @@ class NN_basic(nn.Module):
             x = self.BN3(x)
         x = F.relu(x)
         x = self.S4(x)
-        x.view(x.size(0), -1)
         x = self.F5(x.view(x.size(0), -1))
         if self.use_Dropout:
             x = self.D5(x)
@@ -153,7 +152,9 @@ else:
 
             # Forward + Backward + Optimize
             optimizer.zero_grad()
+            print('hi1')
             outputs = my_net(images)
+            print('hi12')
             loss = criterion(outputs, Variable(labels))
             loss.backward()
             optimizer.step()
@@ -175,7 +176,7 @@ total = 0
 for images, labels in test_loader:
     images = Variable(images)
     outputs = my_net(images)
-    a, winner_class = torch.max(outputs,0)
+    a, winner_class = torch.max(outputs,-1)
 
     correct = correct + sum(winner_class.data.numpy() == labels)
     total = total + labels.size(0)
