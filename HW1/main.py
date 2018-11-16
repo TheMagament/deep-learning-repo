@@ -161,7 +161,7 @@ else:
 
             a, winner_class = torch.max(outputs, -1)
 
-            correct = sum(winner_class.data.numpy().cpu() == labels)
+            correct = sum(winner_class.data.numpy().cpu() == labels.cpu())
             total = labels.size(0)
 
             if (i % (1000/batch_size) == 0):
@@ -178,7 +178,7 @@ for images, labels in test_loader:
     outputs = my_net(images)
     a, winner_class = torch.max(outputs,-1)
 
-    correct = correct + sum(winner_class.data.numpy() == labels)
+    correct = correct + sum(winner_class.data.numpy().cpu() == labels.cpu())
     total = total + labels.size(0)
 
 print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
