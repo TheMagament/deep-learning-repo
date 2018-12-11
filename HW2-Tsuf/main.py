@@ -28,7 +28,6 @@ env.dropouti = 0
 env.wdrop = 0
 env.seed = 141
 env.nonmono = 5
-env.cuda = True
 env.log_interval = 200
 env.save = 'PTB.pt'
 env.alpha = 2
@@ -37,7 +36,9 @@ env.wdecay = 1.2e-6
 env.resume = ''
 env.optimizer = 'sgd'
 env.when = [-1]
+
 env.tied = True
+env.cuda = torch.cuda.is_available()
 
 # ----------------------------------------------------------------------------------
 # Data loading
@@ -99,7 +100,7 @@ def evaluate(data_source, batch_size=10):
     # set the mode to eval mode to disable dropout
     model.eval()
     total_loss = 0
-    hidden = model.get_first_hidden(batch_size)
+    hidden = model.get_first_hidden(batch_size,env)
     for i in range(0, data_source.size(0) - 1, env.seq_len):
         data, targets = get_batch(data_source, i, env)
         output, hidden = model(data, hidden)
@@ -112,7 +113,7 @@ def train():
     # Turn on training mode which enables dropout.
     total_loss = 0
     start_time = time.time()
-    final_hidden_states = model.get_first_hidden(env.batch_size)
+    final_hidden_states = model.get_first_hidden(env.batch_size,env)
     batch, i = 0, 0
     while i < train_data.size(0) - 1 - 1:
         seq_len = env.seq_len

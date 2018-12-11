@@ -73,11 +73,20 @@ class RNNModel(nn.Module):
         output = output.view(output.size(0) * output.size(1), output.size(2))
         return output, final_hidden_states
 
-    def get_first_hidden(self, batch_size):
-        if self.rnn_type == 'LSTM':
-            return [(torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size),
-                     torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_())
-                    for layer in range(self.layers_num)]
-        elif self.rnn_type == 'GRU':
-            return [torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_()
-                    for layer in range(self.layers_num)]
+    def get_first_hidden(self, batch_size,args):
+        if args.cuda:
+            if self.rnn_type == 'LSTM':
+                return [(torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size),
+                         torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_())
+                        for layer in range(self.layers_num)].cuda()
+            elif self.rnn_type == 'GRU':
+                return [torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_()
+                        for layer in range(self.layers_num)].cuda()
+        else:
+            if self.rnn_type == 'LSTM':
+                return [(torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size),
+                         torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_())
+                        for layer in range(self.layers_num)]
+            elif self.rnn_type == 'GRU':
+                return [torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_()
+                        for layer in range(self.layers_num)]
