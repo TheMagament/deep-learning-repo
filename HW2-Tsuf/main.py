@@ -23,8 +23,8 @@ env.clip = 0.5
 env.epochs = 10
 env.batch_size = 20
 env.seq_len = 10
-env.dropouth = 0
-env.dropouti = 0
+env.dropouth = 0.2
+env.dropouti = 0.2
 env.wdrop = 0
 env.seed = 141
 env.nonmono = 5
@@ -108,16 +108,19 @@ def evaluate(data_source, batch_size=10):
         hidden = repackage_hidden(hidden)
     return total_loss.item() / len(data_source)
 
-
-def train():
+lr_start = env.lr
+def train(cur_epoch):
     # Turn on training mode which enables dropout.
     total_loss = 0
     start_time = time.time()
     final_hidden_states = model.get_first_hidden(env.batch_size,env)
     batch, i = 0, 0
+    seq_len = env.seq_len
+    batches_in_epoch = len(train_data) // env.seq_len
+    total_batches = batches_in_epoch*env.epochs
     while i < train_data.size(0) - 1 - 1:
-        seq_len = env.seq_len
-        #lr2 = optimizer.param_groups[0]['lr']
+        cur_total_batch = cur_epoch*batches_in_epoch+batch
+        optimizer.param_groups[0]['lr'] = lr_start*(math.exp(-3*cur_total_batch/total_batches))
         model.train()
         data, targets = get_batch(train_data, i, env, seq_len=seq_len)
 
@@ -165,7 +168,7 @@ try:
         optimizer = torch.optim.Adam(params, lr=env.lr, weight_decay=env.wdecay)
     for epoch in range(1, env.epochs+1):
         epoch_start_time = time.time()
-        train()
+        train(epoch)
         if 't0' in optimizer.param_groups[0]:
             tmp = {}
             for prm in model.parameters():
