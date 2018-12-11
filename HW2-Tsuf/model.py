@@ -74,19 +74,13 @@ class RNNModel(nn.Module):
         return output, final_hidden_states
 
     def get_first_hidden(self, batch_size,args):
+        tmp = torch.Tensor()
         if args.cuda:
-            if self.rnn_type == 'LSTM':
-                return [(torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size),
-                         torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_())
-                        for layer in range(self.layers_num)].cuda()
-            elif self.rnn_type == 'GRU':
-                return [torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_()
-                        for layer in range(self.layers_num)].cuda()
-        else:
-            if self.rnn_type == 'LSTM':
-                return [(torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size),
-                         torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_())
-                        for layer in range(self.layers_num)]
-            elif self.rnn_type == 'GRU':
-                return [torch.zeros(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_()
-                        for layer in range(self.layers_num)]
+            tmp = tmp.cuda()
+        if self.rnn_type == 'LSTM':
+            return [(tmp.new(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_(),
+                     tmp.new(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_())
+                    for layer in range(self.layers_num)]
+        elif self.rnn_type == 'GRU':
+            return [tmp.new(1, batch_size, self.hidden_units_num if layer != self.layers_num - 1 else self.input_size).zero_()
+                    for layer in range(self.layers_num)]
