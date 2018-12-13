@@ -248,6 +248,7 @@ with open(f_name, 'w') as f:
     }
     f.write('Data for Type={} and Dropout={:4.2f},,,\n'.format(env.model, env.dropout))
     f.write('epoch,trail_ppl,val_ppl,test_ppl\n'.format(env.model, env.dropout))
+    print(Statistics['epoch'])
     for i in range(len(Statistics['epoch'])):
         f.write('{:d},{:9.2f},{:9.2f},{:9.2f}\n'.format(Statistics['epoch'][i],Statistics['train_ppl'][i],
                                                         Statistics['val_ppl'][i],Statistics['test_ppl'][i]));
