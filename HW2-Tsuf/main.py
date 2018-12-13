@@ -182,9 +182,9 @@ try:
         epoch_start_time = time.time()
 
         train(epoch)
-        train_loss = evaluate(train_data)
-        val_loss = evaluate(val_data)
-        test_loss = evaluate(test_data)
+        train_loss = evaluate(train_data,env.batch_size)
+        val_loss = evaluate(val_data,eval_batch_size)
+        test_loss = evaluate(test_data,test_batch_size)
         print('-' * 89)
         print('| end of epoch {:3d} | time: {:5.2f}s | valid ppl {:8.2f}'.format(
                 epoch, (time.time() - epoch_start_time), math.exp(val_loss)))
