@@ -143,7 +143,7 @@ def train(cur_epoch):
     total_batches = batches_in_epoch*env.epochs
     while i < train_data.size(0) - 1 - 1:
         cur_total_batch = (cur_epoch-1)*batches_in_epoch+batch
-        optimizer.param_groups[0]['lr'] = lr_start*(math.exp(cur_total_batch/total_batches))
+        optimizer.param_groups[0]['lr'] = lr_start*(math.exp(-cur_total_batch/total_batches))
         model.train()
         data, targets = get_batch(train_data, i, env, seq_len=seq_len)
 
