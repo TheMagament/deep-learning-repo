@@ -42,7 +42,7 @@ env.data = 'data'
 env.input_size = 200
 env.hidden_layers_num = 200
 env.layers_num = 2
-env.epochs = 5
+env.epochs = 1
 env.batch_size = 20
 env.seq_len = 35
 env.seed = 123
@@ -238,14 +238,6 @@ print('=' * 89)
 
 f_name = 'stats_{}_{:4.2f}.csv'.format(env.model, env.dropout)
 with open(f_name, 'w') as f:
-    Statistics = {
-        "net_type": env.model,
-        "Dropout": [env.dropouti, env.dropouth],
-        "epoch": [],
-        "train_ppl": [],
-        "val_ppl": [],
-        "test_ppl": []
-    }
     f.write('Data for Type={} and Dropout={:4.2f},,,\n'.format(env.model, env.dropout))
     f.write('epoch,trail_ppl,val_ppl,test_ppl\n'.format(env.model, env.dropout))
     print(Statistics['epoch'])
