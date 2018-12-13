@@ -89,7 +89,8 @@ test_data = batchify(allData.test, test_batch_size, env)
 criterion = nn.CrossEntropyLoss()
 
 word_num = len(allData.dictionary)
-model = model.RNNModel(env.model, word_num, env.input_size, env.hidden_layers_num, env.layers_num, env.dropouth, env.dropouti)
+model = model.RNNModel(env.model, word_num, env.input_size, env.hidden_layers_num,
+                       env.layers_num, env.dropouth, env.dropouti,0.1)
 ###
 if env.resume:
     print('Resuming model ...')
