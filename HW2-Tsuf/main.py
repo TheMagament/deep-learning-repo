@@ -171,6 +171,7 @@ lr = env.lr
 stored_loss = 100000000
 
 # At any point you can hit Ctrl + C to break out of training early.
+yellow_ticket=0
 try:
     optimizer = None
     # Ensure the optimizer is optimizing params, which includes both the model's weights as well as the criterion's weight (i.e. Adaptive Softmax)
@@ -182,17 +183,23 @@ try:
         epoch_start_time = time.time()
 
         train(epoch)
-        train_loss = evaluate(train_data,env.batch_size)
-        val_loss = evaluate(val_data,eval_batch_size)
-        test_loss = evaluate(test_data,test_batch_size)
+        print('Done! Calculating losses..')
+        train_loss = evaluate(train_data, env.batch_size)
+        val_loss = evaluate(val_data, eval_batch_size)
+        test_loss = evaluate(test_data, test_batch_size)
         print('-' * 89)
         print('| end of epoch {:3d} | time: {:5.2f}s | valid ppl {:8.2f}'.format(
                 epoch, (time.time() - epoch_start_time), math.exp(val_loss)))
         print('-' * 89)
 
-        if val_loss < stored_loss:
-            model_save(env.save)
-            print('Saved model with best validation loss^')
+        if (val_loss < stored_loss) or (yellow_ticket==0):
+            if (val_loss >= stored_loss):
+                yellow_ticket = 1
+                print('Did not save model because validation loss was rising. Trying for one more epoch..')
+            else:
+                yellow_ticket = 0
+                model_save(env.save)
+                print('Saved model with the new best validation loss (:')
             stored_loss = val_loss
             Statistics["epoch"].append(epoch)
             Statistics["train_ppl"].append(train_loss)
