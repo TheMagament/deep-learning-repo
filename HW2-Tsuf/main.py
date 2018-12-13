@@ -7,39 +7,44 @@ import torch.nn as nn
 import os
 import DataHandler
 import model
+import pickle
 from collections import namedtuple
 from utils import batchify, get_batch, repackage_hidden
+import argparse
+
 
 # ----------------------------------------------------------------------------------
 # Global paramerets
+parser = argparse.ArgumentParser(description='OUR MaGNIFIceNT NEtS!!')
+parser.add_argument('--model', type=str, default='LSTM',
+                    help='type of recurrent net (LSTM, GRU)')
+parser.add_argument('--dropout', type=float, default=0,
+                    help='location of the data corpus')
+args = parser.parse_args()
+
 env = namedtuple('env',[])
+env.model = args.model
+env.dropout = args.dropout
 env.data = 'data'
-env.model = 'LSTM'
 env.input_size = 200
 env.hidden_layers_num = 200
 env.layers_num = 2
 env.lr = 30
 env.clip = 0.5
-env.epochs = 10
+env.epochs = 20
 env.batch_size = 20
 env.seq_len = 35
-env.dropouth = 0.2
-env.dropouti = 0.2
-env.wdrop = 0
-env.seed = 141
-env.nonmono = 5
+env.seed = 123
 env.log_interval = 200
 env.save = 'PTB.pt'
-env.beta = 1
 env.wdecay = 1.2e-6
 env.resume = ''
 env.optimizer = 'sgd'
-env.when = [-1]
 
-env.tied = True
-env.alpha = 2
+
 env.cuda = torch.cuda.is_available()
-
+env.dropouth = env.dropout
+env.dropouti = env.dropout
 # ----------------------------------------------------------------------------------
 # Data loading
 
@@ -95,6 +100,14 @@ print('Model total parameters:', total_params)
 ###############################################################################
 # Training code
 ###############################################################################
+Statistics = {
+    "net_type": env.model,
+    "Dropout": [env.dropouti, env.dropouth],
+    "epoch": [],
+    "train_ppl": [],
+    "val_ppl": [],
+    "test_ppl": []
+}
 
 def evaluate(data_source, batch_size=10):
     # set the mode to eval mode to disable dropout
@@ -155,7 +168,6 @@ def train(cur_epoch):
 
 # Loop over epochs.
 lr = env.lr
-best_val_loss = []
 stored_loss = 100000000
 
 # At any point you can hit Ctrl + C to break out of training early.
@@ -168,50 +180,29 @@ try:
         optimizer = torch.optim.Adam(params, lr=env.lr, weight_decay=env.wdecay)
     for epoch in range(1, env.epochs+1):
         epoch_start_time = time.time()
+
         train(epoch)
-        if 't0' in optimizer.param_groups[0]:
-            tmp = {}
-            for prm in model.parameters():
-                tmp[prm] = prm.data.clone()
-                prm.data = optimizer.state[prm]['ax'].clone()
+        train_loss = evaluate(train_data)
+        val_loss = evaluate(val_data)
+        test_loss = evaluate(test_data)
+        print('-' * 89)
+        print('| end of epoch {:3d} | time: {:5.2f}s | valid ppl {:8.2f}'.format(
+                epoch, (time.time() - epoch_start_time), math.exp(val_loss)))
+        print('-' * 89)
 
-            val_loss2 = evaluate(val_data)
-            print('-' * 89)
-            print('| end of epoch {:3d} | time: {:5.2f}s | valid ppl {:8.2f}'.format(
-                    epoch, (time.time() - epoch_start_time), math.exp(val_loss2)))
-            print('-' * 89)
-
-            if val_loss2 < stored_loss:
-                model_save(env.save)
-                print('Saving Averaged!')
-                stored_loss = val_loss2
-
-            for prm in model.parameters():
-                prm.data = tmp[prm].clone()
-
+        if val_loss < stored_loss:
+            model_save(env.save)
+            print('Saved model with best validation loss^')
+            stored_loss = val_loss
+            Statistics["epoch"].append(epoch)
+            Statistics["train_ppl"].append(train_loss)
+            Statistics["val_ppl"].append(val_loss)
+            Statistics["test_ppl"].append(test_loss)
         else:
-            val_loss = evaluate(val_data, eval_batch_size)
-            print('-' * 89)
-            print('| end of epoch {:3d} | time: {:5.2f}s | valid ppl {:8.2f}'.format(
-              epoch, (time.time() - epoch_start_time), math.exp(val_loss)))
-            print('-' * 89)
+            print('Stopped to prevent over-fitting (validation loss is rising). ',
+                  'The saved model is for the previous epoch.')
+            break
 
-            if val_loss < stored_loss:
-                model_save(env.save)
-                print('Saving model (new best validation)')
-                stored_loss = val_loss
-
-            if env.optimizer == 'sgd' and 't0' not in optimizer.param_groups[0] and (len(best_val_loss)>env.nonmono and val_loss > min(best_val_loss[:-env.nonmono])):
-                print('Switching to ASGD')
-                optimizer = torch.optim.ASGD(model.parameters(), lr=env.lr, t0=0, lambd=0., weight_decay=env.wdecay)
-
-            if epoch in env.when:
-                print('Saving model before learning rate decreased')
-                model_save('{}.e{}'.format(env.save, epoch))
-                print('Dividing learning rate by 10')
-                optimizer.param_groups[0]['lr'] /= 10.
-
-            best_val_loss.append(val_loss)
 
 except KeyboardInterrupt:
     print('-' * 89)
@@ -225,3 +216,8 @@ test_loss = evaluate(test_data, test_batch_size)
 print('=' * 89)
 print('| End of training | test ppl {:8.2f}'.format(math.exp(test_loss)))
 print('=' * 89)
+
+f_name = 'stats_{}_{:4.2f}.pkl'.format(env.model, env.dropout)
+with open(f_name, 'wb') as f:
+    pickle.dump(Statistics, f)
+    print("Saved to %s" % f_name)
