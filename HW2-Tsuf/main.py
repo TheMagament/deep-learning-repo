@@ -16,28 +16,38 @@ import argparse
 # ----------------------------------------------------------------------------------
 # Global paramerets
 parser = argparse.ArgumentParser(description='OUR MaGNIFIceNT NEtS!!')
+parser.add_argument('--mode', type=str, default='eval_mode',
+                    help='running mode: train or eval')
 parser.add_argument('--model', type=str, default='LSTM',
                     help='type of recurrent net (LSTM, GRU)')
 parser.add_argument('--dropout', type=float, default=0,
-                    help='location of the data corpus')
+                    help='dropout amount')
+parser.add_argument('--lr', type=float, default=30,
+                    help='learning rate')
+parser.add_argument('--clip', type=float, default=0.5,
+                    help='gradient clipping')
+parser.add_argument('--wdecay', type=float, default=1.2e-6,
+                    help='weight decay')
 args = parser.parse_args()
 
 env = namedtuple('env',[])
+env.mode = args.mode
 env.model = args.model
 env.dropout = args.dropout
+env.lr = args.lr
+env.clip = args.clip
+env.wdecay = args.wdecay
+
 env.data = 'data'
 env.input_size = 200
 env.hidden_layers_num = 200
 env.layers_num = 2
-env.lr = 30
-env.clip = 0.5
 env.epochs = 20
 env.batch_size = 20
 env.seq_len = 35
 env.seed = 123
 env.log_interval = 200
 env.save = 'PTB.pt'
-env.wdecay = 1.2e-6
 env.resume = ''
 env.optimizer = 'sgd'
 
