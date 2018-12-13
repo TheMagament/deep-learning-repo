@@ -22,7 +22,7 @@ env.lr = 30
 env.clip = 0.5
 env.epochs = 10
 env.batch_size = 20
-env.seq_len = 10
+env.seq_len = 35
 env.dropouth = 0.2
 env.dropouti = 0.2
 env.wdrop = 0
@@ -119,7 +119,7 @@ def train(cur_epoch):
     batches_in_epoch = len(train_data) // env.seq_len
     total_batches = batches_in_epoch*env.epochs
     while i < train_data.size(0) - 1 - 1:
-        cur_total_batch = cur_epoch*batches_in_epoch+batch
+        cur_total_batch = (cur_epoch-1)*batches_in_epoch+batch
         optimizer.param_groups[0]['lr'] = lr_start*(math.exp(-3*cur_total_batch/total_batches))
         model.train()
         data, targets = get_batch(train_data, i, env, seq_len=seq_len)
