@@ -179,32 +179,34 @@ try:
         optimizer = torch.optim.SGD(params, lr=env.lr, weight_decay=env.wdecay)
     if env.optimizer == 'adam':
         optimizer = torch.optim.Adam(params, lr=env.lr, weight_decay=env.wdecay)
+
     for epoch in range(1, env.epochs+1):
         epoch_start_time = time.time()
-
         train(epoch)
         print('Done! Calculating losses..')
         train_loss = evaluate(train_data, env.batch_size)
         val_loss = evaluate(val_data, eval_batch_size)
         test_loss = evaluate(test_data, test_batch_size)
         print('-' * 89)
-        print('| end of epoch {:3d} | time: {:5.2f}s | valid ppl {:8.2f}'.format(
-                epoch, (time.time() - epoch_start_time), math.exp(val_loss)))
+        print('| end of epoch {:3d} | time: {:5.2f}s | train ppl {:8.2f} | valid ppl {:8.2f} | test ppl {:8.2f}'.format(
+                epoch, (time.time() - epoch_start_time), math.exp(train_loss),math.exp(val_loss),math.exp(test_loss)))
         print('-' * 89)
 
-        if (val_loss < stored_loss) or (yellow_ticket==0):
-            if (val_loss >= stored_loss):
+        Statistics["epoch"].append(epoch)
+        Statistics["train_ppl"].append(train_loss)
+        Statistics["val_ppl"].append(val_loss)
+        Statistics["test_ppl"].append(test_loss)
+
+        if (val_loss < stored_loss*0.99) or (yellow_ticket==0):
+            if (val_loss >= stored_loss*0.99):
                 yellow_ticket = 1
-                print('Did not save model because validation loss was rising. Trying for one more epoch..')
+                print('Didn\'t save the model because validation loss was barely decreasing or not at all.',
+                      ' Trying for one more epoch..')
             else:
                 yellow_ticket = 0
                 model_save(env.save)
                 print('Saved model with the new best validation loss (:')
-            stored_loss = val_loss
-            Statistics["epoch"].append(epoch)
-            Statistics["train_ppl"].append(train_loss)
-            Statistics["val_ppl"].append(val_loss)
-            Statistics["test_ppl"].append(test_loss)
+                stored_loss = val_loss
         else:
             print('Stopped to prevent over-fitting (validation loss is rising). ',
                   'The saved model is for the previous epoch.')
@@ -221,7 +223,7 @@ model_load(env.save)
 # Run on test data.
 test_loss = evaluate(test_data, test_batch_size)
 print('=' * 89)
-print('| End of training | test ppl {:8.2f}'.format(math.exp(test_loss)))
+print('| End of training | final test ppl = {:8.2f}'.format(math.exp(test_loss)))
 print('=' * 89)
 
 f_name = 'stats_{}_{:4.2f}.pkl'.format(env.model, env.dropout)
