@@ -42,12 +42,11 @@ env.data = 'data'
 env.input_size = 200
 env.hidden_layers_num = 200
 env.layers_num = 2
-env.epochs = 1
+env.epochs = 20
 env.batch_size = 20
 env.seq_len = 35
 env.seed = 123
 env.log_interval = 200
-env.save = 'PTB.pt'
 env.resume = ''
 env.optimizer = 'sgd'
 
@@ -214,7 +213,7 @@ try:
                       ' Trying for one more epoch..')
             else:
                 yellow_ticket = 0
-                model_save(env.save)
+                model_save('model_{}_{:4.2f}.mdl'.format(env.model, env.dropout))
                 print('Saved model with the new best validation loss (:')
                 stored_loss = val_loss
         else:
@@ -228,7 +227,7 @@ except KeyboardInterrupt:
     print('Exiting from training early')
 
 # Load the best saved model.
-model_load(env.save)
+model_load('model_{}_{:4.2f}.mdl'.format(env.model, env.dropout))
 
 # Run on test data.
 test_loss = evaluate(test_data, test_batch_size)
@@ -240,7 +239,6 @@ f_name = 'stats_{}_{:4.2f}.csv'.format(env.model, env.dropout)
 with open(f_name, 'w') as f:
     f.write('Data for Type={} and Dropout={:4.2f},,,\n'.format(env.model, env.dropout))
     f.write('epoch,trail_ppl,val_ppl,test_ppl\n'.format(env.model, env.dropout))
-    print(Statistics['epoch'])
     for i in range(len(Statistics['epoch'])):
         f.write('{:d},{:9.2f},{:9.2f},{:9.2f}\n'.format(Statistics['epoch'][i],Statistics['train_ppl'][i],
                                                         Statistics['val_ppl'][i],Statistics['test_ppl'][i]));
