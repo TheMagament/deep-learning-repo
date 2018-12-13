@@ -194,7 +194,7 @@ try:
         epoch_start_time = time.time()
         train(epoch)
         print('Done! Calculating losses..')
-        train_loss = evaluate(train_data, env.batch_size)
+        train_loss = 1#evaluate(train_data, env.batch_size)
         val_loss = evaluate(val_data, eval_batch_size)
         test_loss = evaluate(test_data, test_batch_size)
         print('-' * 89)
