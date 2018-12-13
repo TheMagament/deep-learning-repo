@@ -30,7 +30,6 @@ env.seed = 141
 env.nonmono = 5
 env.log_interval = 200
 env.save = 'PTB.pt'
-env.alpha = 2
 env.beta = 1
 env.wdecay = 1.2e-6
 env.resume = ''
@@ -38,6 +37,7 @@ env.optimizer = 'sgd'
 env.when = [-1]
 
 env.tied = True
+env.alpha = 2
 env.cuda = torch.cuda.is_available()
 
 # ----------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ def train(cur_epoch):
     total_batches = batches_in_epoch*env.epochs
     while i < train_data.size(0) - 1 - 1:
         cur_total_batch = (cur_epoch-1)*batches_in_epoch+batch
-        optimizer.param_groups[0]['lr'] = lr_start*(math.exp(-3*cur_total_batch/total_batches))
+        optimizer.param_groups[0]['lr'] = lr_start*(math.exp(-2*cur_total_batch/total_batches))
         model.train()
         data, targets = get_batch(train_data, i, env, seq_len=seq_len)
 
