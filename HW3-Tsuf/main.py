@@ -16,16 +16,14 @@ import argparse
 # ----------------------------------------------------------------------------------
 # Global paramerets
 parser = argparse.ArgumentParser(description='OUR MaGNIFIceNT NEtS!!')
-parser.add_argument('--mode', type=str, default='eval_mode',
-                    help='running mode: train or eval')
-parser.add_argument('--model', type=str, default='LSTM',
-                    help='type of recurrent net (LSTM, GRU)')
-parser.add_argument('--dropout', type=float, default=0,
-                    help='dropout amount')
+parser.add_argument('--mode', type=str, default='eval',
+                    help='running mode: train | eval | generate')
+parser.add_argument('--method', type=str, default='WGAN-GP',
+                    help='type of network (WGAN-GP, DCGAN)')
 parser.add_argument('--lr', type=float, default=30,
                     help='learning rate')
 parser.add_argument('--clip', type=float, default=0.5,
-                    help='gradient clipping')
+                    help='gradient penalty')
 parser.add_argument('--wdecay', type=float, default=1.2e-6,
                     help='weight decay')
 args = parser.parse_args()
